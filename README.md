@@ -28,6 +28,11 @@
 git clone https://github.com/bcht1145/QQ_Elaina_ChatBot.git
 ```  
 
+在下载之后，还要下载Elaina的依赖  
+```bash
+pip install -r requirements.txt
+```
+
 ### Config
 在开始正式运行前，请保证配置文件`config.py`已配置好  
 你可以自由的修改其中的内容，前提你需要知道他们都代表着什么  

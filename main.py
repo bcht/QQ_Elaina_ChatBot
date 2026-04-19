@@ -10,6 +10,7 @@ import ast
 import logging
 import config
 import importlib
+import ota
 
 #首先，去他丫的LOGO
 #我肯定是不会写LOGO，占地
@@ -29,7 +30,7 @@ if not os.path.exists(os.path.join(path,'user_json')):#初始化ing
     os.makedirs(os.path.join(path,'user_json'))
 
 server = Flask('Elaina',template_folder='Elaina',static_folder='Elaina')
-client_version = 'v1.0.0 beta'# 机器人版本，用于OTA，不要修改
+client_version = 'v1.0.1 alpha'# 机器人版本，用于OTA，不要修改
 
 def get_formatted_time():
     """返回当前时间，格式为 '年份-月份-日期-小时:分钟:秒'"""
@@ -217,5 +218,8 @@ def auto_reply_message():
 if __name__ == '__main__':#但愿没人闲的没事把这玩意当模块跑
     logging.info(f'当前版本:{client_version}')
     if OTA_allow:
-        pass#还没写OTA
+        logging.info('正在检查更新...')
+        success, msg = ota.ota_update(client_version, github_repo, auto_restart=True)
+        logging.info(msg)
+        
     server.run(host=client_address,port=client_port,debug=False)#每日禁用debug(1/1)
