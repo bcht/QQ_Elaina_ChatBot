@@ -10,6 +10,9 @@ from io import BytesIO
 
 logger = logging.getLogger(__name__)
 
+"""澄清一下，这玩意不全是我写的
+稍微用了一下ai，改了一下，对不住qwq"""
+
 def get_latest_release(repo):
     """从 GitHub API 获取最新 Release 信息"""
     url = f"https://api.github.com/repos/{repo}/releases/latest"
@@ -22,7 +25,7 @@ def get_latest_release(repo):
         
         data = response.json()
         return {
-            "version": data["tag_name"],
+            "version": data["name"],
             "zip_url": data["zipball_url"],
             "name": data["name"]
         }
@@ -62,7 +65,7 @@ def install_dependencies(source_dir):
     req_file = os.path.join(source_dir, "requirements.txt")
     
     if not os.path.exists(req_file):
-        logger.info("没有 requirements.txt，跳过依赖安装")
+        logger.info("没有 requirements.txt，跳过依赖安装")#虽然这玩意大概率一辈子都不会出现一回
         return True
     
     try:
@@ -166,9 +169,7 @@ def ota_update(current_version, repo, auto_restart=True):
     success, msg = check_and_update(current_version, repo)
     
     if success and auto_restart:
-        logger.info("3 秒后重启...")
-        import time
-        time.sleep(3)
+        logger.info("即将重启...")
         restart_program()
     
     return success, msg
