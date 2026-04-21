@@ -86,6 +86,16 @@ def auto_reply_message():
         #加载json用户信息
         user = User(uid,path)
 
+        if msg == '/help':#用于获取帮助
+            try:
+                with open('help.txt','r',encoding='utf-8') as f:#防手欠x2
+                    send_msg(f'{f.read()}',uid,gid)
+            except FileNotFoundError:
+                send_msg('未找到帮助文档文件',uid,gid)
+                logging.exception('未找到帮助文档文件，请确认help.txt是否存在且未重命名')
+                return "OK",200
+            return "OK",200
+
         if msg == '/重载' and uid in admin:
             hot_reload_config()
             send_msg('已重载配置文件',uid,gid)
