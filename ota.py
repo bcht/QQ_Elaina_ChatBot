@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 import zipfile
 import shutil
 import logging
@@ -27,7 +26,7 @@ def get_latest_release(repo):
         return {
             "version": data["name"],
             "zip_url": data["zipball_url"],
-            "name": data["name"]
+            "name": data["tag_name"]
         }
     except Exception as e:
         logger.error(f"获取 Release 出错: {e}")
