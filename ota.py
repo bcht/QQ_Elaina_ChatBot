@@ -42,14 +42,12 @@ def download_and_extract(zip_url):
             logger.error(f"下载失败: HTTP {response.status_code}")
             return None
         
-        # 解压到临时目录
         temp_dir = "_ota_temp"
         if os.path.exists(temp_dir):
             shutil.rmtree(temp_dir)
         os.makedirs(temp_dir)
         
         with zipfile.ZipFile(BytesIO(response.content)) as z:
-            # GitHub 的 zip 包解压后有个文件夹，格式是 用户名-仓库名-commit哈希
             root_folder = z.namelist()[0].split('/')[0]
             z.extractall(temp_dir)
         
@@ -64,7 +62,7 @@ def install_dependencies(source_dir):
     req_file = os.path.join(source_dir, "requirements.txt")
     
     if not os.path.exists(req_file):
-        logger.info("没有 requirements.txt，跳过依赖安装")#虽然这玩意大概率一辈子都不会出现一回
+        logger.info("没有 requirements.txt，跳过依赖安装")
         return True
     
     try:
@@ -76,28 +74,43 @@ def install_dependencies(source_dir):
         logger.error(f"安装依赖失败: {e}")
         return False
 
-def replace_files(source_dir):
-    """替换所有文件（跳过 config.py）"""
+def replace_files(source_dir, keep_files=None):
+    """替换所有文件（跳过 config.py），并删除废弃文件"""
     try:
         logger.info("正在替换文件...")
         
-        for item in os.listdir(source_dir):
-            # 跳过 config.py，不覆盖
-            if item == "config.py":
-                logger.info("跳过 config.py（保留用户配置）")
+        # 默认保留的文件
+        if keep_files is None:
+            keep_files = ["config.py"]
+        else:
+            keep_files = list(set(keep_files + ["config.py"]))  # config.py 永远保留
+        
+        # 获取源文件列表（排除要保留的）
+        source_items = {item for item in os.listdir(source_dir) if item not in keep_files}
+        
+        # 删除目标目录中的废弃文件
+        for item in os.listdir("."):
+            if item in keep_files or item.startswith("_ota_temp"):
                 continue
-            
+            if item not in source_items:
+                target = item
+                logger.info(f"删除废弃文件: {item}")
+                if os.path.isdir(target):
+                    shutil.rmtree(target)
+                else:
+                    os.remove(target)
+        
+        # 复制新文件
+        for item in source_items:
             src = os.path.join(source_dir, item)
             dst = item
             
-            # 删除旧文件/文件夹
             if os.path.exists(dst):
                 if os.path.isdir(dst):
                     shutil.rmtree(dst)
                 else:
                     os.remove(dst)
             
-            # 复制新文件
             if os.path.isdir(src):
                 shutil.copytree(src, dst)
             else:
@@ -107,7 +120,7 @@ def replace_files(source_dir):
         return True
         
     except Exception as e:
-        logger.error(f"替换文件出错: {e}")
+        logger.error(f"文件替换出错: {e}")
         return False
 
 def cleanup():
@@ -123,7 +136,7 @@ def restart_program():
     python = sys.executable
     os.execl(python, python, *sys.argv)
 
-def check_and_update(current_version, repo):
+def check_and_update(current_version, repo, keep_file):
     """主函数：检查并执行更新"""
     
     # 1. 获取最新 Release
@@ -153,7 +166,7 @@ def check_and_update(current_version, repo):
         return False, "依赖安装失败"
     
     # 5. 替换文件
-    if not replace_files(source_dir):
+    if not replace_files(source_dir,keep_files=keep_file):
         cleanup()
         return False, "文件替换失败"
     
@@ -163,9 +176,9 @@ def check_and_update(current_version, repo):
     logger.info(f"更新完成！新版本: {latest_version}")
     return True, f"已更新到 {latest_version}"
 
-def ota_update(current_version, repo, auto_restart=True):
+def ota_update(current_version, repo, keep_file=None, auto_restart=True):
     """OTA 更新入口"""
-    success, msg = check_and_update(current_version, repo)
+    success, msg = check_and_update(current_version, repo, keep_file)
     
     if success and auto_restart:
         logger.info("即将重启...")

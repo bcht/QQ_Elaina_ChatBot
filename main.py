@@ -31,13 +31,17 @@ logging.getLogger(__name__)
 path =  os.path.dirname(__file__) #文件路径
 logging.debug(f'路径:{path}')
 if not os.path.exists(os.path.join(path,'user_json')):#初始化ing
-    logging.warning('数据库不存在，创建')
+    logging.warning('用户数据库不存在，创建')
     os.makedirs(os.path.join(path,'user_json'))
+if not os.path.exists(os.path.join(path,'group_json')):
+    logging.warning('群聊数据库不存在，创建')
+    os.makedirs(os.path.join(path,'group_json'))
 
 server = FastAPI(title='Elaina')
 client_version = 'v1.1.0'# 机器人版本，用于OTA，不要修改
 file_lock = asyncio.Lock() #谁持锁，这文件就是谁的天下。函数啊，大文件…就给你了…(趋势)(大清就交给你了)
 user_locks = {}  # 存储每个用户的锁
+keep_file = ['config.py','user_json','group_json']
 
 def get_formatted_time():
     """返回当前时间，格式为 '年份-月份-日期-小时:分钟:秒'"""
