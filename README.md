@@ -13,12 +13,12 @@
     - [x] OTA更新
 
 ### 命令列表
-[命令列表](explain/command.md)
+[命令列表](docs/command.md)
 
 # 部署方法
 ## QQ Server
 我们强烈推荐使用[**NapCat**](https://github.com/NapNeko/NapCatQQ)作为QQ服务端进行使用  
-具体部署方法请查看[NapCat文档](https://napneko.github.io/)，或者直接看我的[NapCat大白话手把手教你部署](explain/install.md)  
+具体部署方法请查看[NapCat文档](https://napneko.github.io/)，或者直接看我的[NapCat大白话手把手教你部署](docs/install.md)  
 下面的所有教程均将使用NapCat作为QQ服务端
 
 ## Elaina Client
@@ -39,7 +39,7 @@ pip install -r requirements.txt
 ### Config
 在开始正式运行前，请保证配置文件`config.py`已配置好  
 你可以自由的修改其中的内容，前提你需要知道他们都代表着什么  
-你可以阅读[配置文件详解](explain/config_set.md)来进行配置
+你可以阅读[配置文件详解](docs/config_set.md)来进行配置
 
 ### QQ Run
 终于开始跑了吗！太好了！  
